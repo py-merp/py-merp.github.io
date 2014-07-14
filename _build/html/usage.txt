@@ -1,0 +1,86 @@
+#####################
+Tutorial (Basic Usage)
+#####################
+
+The MeRP pipeline works in the python console. To import and initialize MeRP after entering the Python console, run the commands:
+    >>> import merp
+    >>> m = merp.Merp()
+
+The following examples are executed within the Python console
+(indicated by ">>>" ) but can equally be incorporated in standalone scripts. <----work this out. Also include screenshots for clearness.
+
+Question: Does LDL have a causal effect on risk of Heart Attack?
+
+
+
+
+*************************
+Pulling GWAS Catalog Data
+*************************
+Run this python command first in the package directory to pull latest NHGRI GWAS catalog and create a set of IV trait files in the dir /traitFiles along with an index mapping traits to IDs.
+
+    >>> python src/gwas_pull.py (change these when figure out better way to run)
+
+.. note:: 
+    Frozen version of catalog and traitFiles from 12/18/13 included in package. Running gwas_pull.py will overwrite these files. 
+
+
+
+**********************************************
+Selecting/Updating IVs for Traits of Interest 
+**********************************************
+Browse the "index" file in the home directory to find ID numbers associated with traits of interest. 
+
+Run update.py with trait file(s) of interest. To update multiple files simultaneously, run the update.py with full paths/to/traitFiles that are single space separated.
+
+For example, to update LDL Cholesterol IV file, which is number 123: !include screenshot
+
+    >>> python src/update.py traitFiles/123
+
+Output:
+    - Updated file added to /traitFiles as #_update. (1_update)
+    - List of SNPs without allele info from 1000 genomes if applicable
+
+.. note:: 
+    update.py adds the non-risk allele to the IV file by accessing 1000genomes data.If an allele is not in the 1000 genomes data, the SNP will be printed and the non-risk allele of the SNP will be marked as missing in the #_update file. The user has the option to manually enter this column for those SNPs or leave them out of the analysis. (will our program ignore if unchanged?)
+
+    
+
+****************************************
+Filter Trait IVFs for Confounding and LD
+****************************************
+
+    >>> python bin/filter.py traitFile/123_update [include.txt] [exclude.txt]
+
+    Output:
+        - Trait file filtered for SNPs with confounding associations added as : /traitFiles/[#]_updatefiltered 
+
+===========================
+include.txt and exclude.txt
+===========================
+include.txt: link to path of file (e.g bin/include.txt) with list of traits that are found in NHGRI catalog that may be related to or similar to trait of interest but is not confounding.
+
+.. note::
+    Run filter.py once with empty include.txt file. The program will print out exclusions b/c of diseases, and select those that are  similar to trait of interest.
+
+exclude.txt: link to path of file (e.g bin/exclude.txt) with list of column titles from data/v3abr_allmetabolic_pvals_v2.txt that are/are related closely to trait of interest. 
+
+.. note::
+    Run $ head -1 data/v3abr_allmetabolic_pvals_v2.txt to see all column headers before creating exclude.txt file.
+
+For LDL Cholesterol, our include.txt file would contain "total, cholesterol" as worded in NHGRI catalog. Our exclude.txt file would contain "P_LDL" as worded in pval.txt file
+
+============
+LDL Example
+============
+
+**********************************************
+Calculate Trait-Disease Casual Effect Estimate
+**********************************************
+
+
+
+
+.. warning::
+    One should be careful about editing essential stuff in the object like the
+    'Data' entry, because it will be overwritten, once saved.
