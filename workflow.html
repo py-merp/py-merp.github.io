@@ -47,52 +47,38 @@
             
   <div class="section" id="detailed-workflow">
 <h1>3. Detailed Workflow<a class="headerlink" href="#detailed-workflow" title="Permalink to this headline">¶</a></h1>
-<div class="figure align-center">
-<img alt="_images/workflowrough.png" src="_images/workflowrough.png" />
-</div>
-<div class="section" id="creating-files-from-nhgri-gwas-catalog">
-<h2>3.1. Creating Files From NHGRI GWAS Catalog<a class="headerlink" href="#creating-files-from-nhgri-gwas-catalog" title="Permalink to this headline">¶</a></h2>
-<p>The National Human Genome Research Center’s (NHGRI) GWAS Catalog is a regularly updated compilation of data from GWAS publications with 508 traits and over 15,000 lines of SN
--Trait associations as of December 2013. The NHGRI catalog was used as our starting resource for the creation of instrumental variable trait files for MR analysis.
-First, the latest NHGRI GWAS catalog is pulled from the website (<a class="reference external" href="http://www.genome.gov/admin/gwascatalog.txt">http://www.genome.gov/admin/gwascatalog.txt</a>) as a tab-separated file. After general formatting changes, all SNP-trait associations that are genome-wide significant (p&lt;5x10E-8) are binned by trait name into individual trait files with each line containing a SNP rs ID, log of Odds Ratio (Beta) of SNP on Trait, 95% Confidence Interval of Effect, Effect Allele, p-value and supplementary identifying information.</p>
-</div>
-<div class="section" id="updating-files-with-necessary-information">
-<h2>3.2. Updating Files With Necessary Information<a class="headerlink" href="#updating-files-with-necessary-information" title="Permalink to this headline">¶</a></h2>
-<p>Unfortunately, the current state of the NHGRI catalog lacks the non-risk allele, a necessary piece of information for aligning direction of association when calculating MR
-score with a disease endpoint. In addition, the beta effect values listed for each SNP are all positive values, with information about their true positive or negative
-numerical effect in a separate column. The update() function references a large SNP file based on 1000 genomes data for allele information to add the non-risk allele and
-updates the sign of beta value according to given unit syntax (increase/decrease, taller/shorter, etc).</p>
+<div class="section" id="obtaining-genetic-instruments-from-public-data">
+<h2>3.1. Obtaining Genetic Instruments from Public Data<a class="headerlink" href="#obtaining-genetic-instruments-from-public-data" title="Permalink to this headline">¶</a></h2>
+<p>The National Human Genome Research Institute (NHGRI) maintains a compilation of data from GWAS publications consisting of 1961 publications and 14,012 SNPs (as of August 2014), and was used as our starting point (see web links below). All SNP associations that are genome-wide significant (P &lt; 5 x 10 ^ -8) are pooled by trait name into individual IVFs with information on the SNP id, trait effect and effect allele, p-value, and PubMed ID. We further amend with the non-effect allele using data from the 1000 Genomes project (Phase I) and <a href="#id1"><span class="problematic" id="id2">`</span></a>polarize&#8217; the effect sizes given according to the unit syntax provided.</p>
 </div>
 <div class="section" id="linkage-disequilibrium-ld-and-confounding-association-filtering">
-<h2>3.3. Linkage Disequilibrium (LD) and Confounding Association Filtering<a class="headerlink" href="#linkage-disequilibrium-ld-and-confounding-association-filtering" title="Permalink to this headline">¶</a></h2>
-<p>In order to satisfy conditions of MR analysis, we must ensure that each of the genetic variants is independent of confounding factors of disease or trait of interest. In
+<h2>3.2. Linkage Disequilibrium (LD) and Confounding Association Filtering<a class="headerlink" href="#linkage-disequilibrium-ld-and-confounding-association-filtering" title="Permalink to this headline">¶</a></h2>
+<p>For the IVF to satisfy conditions of MR analysis, MeRP provides filtering steps for LD and confounding trait associations.</p>
+<p>First, associations with potential confounding traits are assayed from within the NHGRI GWAS catalog, excluding associations with user-specified disease endpoints or traits that are intertwined with the trait of focus (e.g., LDL with Total Cholesterol). Next, we provide a summary file containing association p-values for &gt;2 million SNPs and 15 cardio/metabolic traits obtained from the public domain for additional filtering (see below). Users can filter SNPs that exceed a given strength of association in these data (by default, P&lt;0.001), or by total number of weak associations (by default, 4 or more associations with P&lt;0.05). Users can also select a subset of &#8216;primary&#8217; confounding traits such that SNPs with a single association  with one of these confounding traits are filtered out (by default, P&lt;0.01). Furthermore, users can ensure that the total number of potential confounding associations overall do not exceed a specified proportion of the IVF. By default, if the total number of P&lt;0.05 associations exceeds 10% of total SNPs times the number of potential confounding trait associations, SNPs are iteratively removed based on total P&lt;0.05 violations (largest to smallest number). Finally, remaining SNPs are grouped together based on pairwise LD (r^2&gt;0.05) via web query (see below), using the SNP with the most significant trait association value as the lead SNP for each LD group. The lead SNPs each LD group comprise the list of genetic variants advanced into MR analysis.
+In order to satisfy conditions of MR analysis, we must ensure that each of the genetic variants is independent of confounding factors of disease or trait of interest. In
 addition, we make sure that no two variants are in linkage disequilibrium, a measure of non-random association of two alleles, which would cause a disproportionately weighed
 causal effect on disease and violate random assortment assumption of MR.</p>
-<p>We address these in a two-step filtering method on the SNPs in our IV files.</p>
-<div class="section" id="filtering-by-ld-and-gwas-associations">
-<h3>3.3.1. Filtering by LD and GWAS associations<a class="headerlink" href="#filtering-by-ld-and-gwas-associations" title="Permalink to this headline">¶</a></h3>
-<p>Genetic variant SNPs are grouped by LD association with r^2 Threshold of 0.05, making clusters of SNPs that have LD association with each other such that any two SNPs in a
-cluster can connect through drawing LD associations of r^2&gt; 0.05. The SNP with lowest p-value of trait association among each cluster is labeled the lead SNP. Each lead SNP
-is then scanned for presence of SNPs with associations with confounding traits in the NHGRI GWAS catalog. Excluded in this scan are associations with disease endpoints and
-traits that are similar/closely related to trait of focus. Lead SNPs with any associations are tossed out, and the remaining lead SNPs are passed on.</p>
+<div class="section" id="development-of-metabolic-p-val-file">
+<h3>3.2.1. Development of Metabolic P-val file<a class="headerlink" href="#development-of-metabolic-p-val-file" title="Permalink to this headline">¶</a></h3>
+<p>P-value association data for the provided file of anthropometric, lipid, blood pressure, and glycemic data was obtained from publicly available resources (web-links provided below). This included data for Systolic (P_SBP) and Diastolic Blood Pressure (P_DBP) from the International Consortium for Blood Pressure Genome-Wide Association Studies. Association data for low and high-density lipoprotein cholesterol, total cholesterol, and triglycerides (P_LDL, P_HDL, P_TC, and P_TG) were obtained from the Global Lipids Genetics Consortium. Association data for body mass index (P_BMI), Height (P_HEIGHT), Waist-hip Ratio adjusted for BMI (P_WHRadjBMI) were obtained from the GIANT Consortium. Association data for Fasting glucose (P_FastGlu), 2-hour glucose adjusted for BMI (P_2hrGLUadjBMI), glycated hemoglobin linebreak[4] (P_HbA1C), fasting insulin levels (P_FastIns), fasting proinsulin levels linebreak[4] (P_FastProIns), HOMA-B (P_HOMA-B) and HOMA-IR (P_HOMA-IR) were obtained from MAGIC. Data from each of these sets were merged into a single file by dbSNP rs number, and missing data was denoted (<a href="#id3"><span class="problematic" id="id4">``</span></a>NA&#8221;). Final, filtered instrumental variable files (IVF) will contain the number of <a href="#id5"><span class="problematic" id="id6">`</span></a>NAs&#8217; found in the warning flag column, or a <a href="#id7"><span class="problematic" id="id8">`</span></a>Not-in-pval&#8217; flag if the SNP was not in the P-value data file. All citations can be found in supplementary note (in submission)</p>
 </div>
-<div class="section" id="filtering-by-association-with-common-metabolic-traits">
-<h3>3.3.2. Filtering by Association with Common Metabolic Traits<a class="headerlink" href="#filtering-by-association-with-common-metabolic-traits" title="Permalink to this headline">¶</a></h3>
-<p>To ensure thorough purging of confounded genetic variants, we filter the remaining SNPs using a metabolic p-value association file containing &gt; 2.0x10^6 SNPs and p-value associations with 15 metabolic-related traits, including LDL, HDL, fasting glucose levels, blood pressure- common confounders of diseases including CVD and T2D. If the trait of interest is in fact one of the 15 metabolic traits, those associations are ignored by a helper file (see tutorial). The algorithm used removes any SNP with an association to a metabolic trait with p&lt;0.001. If a SNP has 4 or more associations with p&lt;0.05, it is also removed. Lastly, SNPs are grouped by the number of p&lt;0.05 associations (between 0 and 3). If the total number of p&lt;0.05 violations exceeds that expected from chance (5% of total SNPs * 15 associations per/SNP) then SNPs are iteratively removed based on total p&lt;0.05 violations, beginning with SNPs that have 3. This ensures that our final IV files does not contain more significant metabolic associations than we would expect by chance (p=0.05). SNPs that remain compose the score of genetic variants that make up the trait instrumental variable file for MR analysis.</p>
+<div class="section" id="obtaining-ld-query-information">
+<h3>3.2.2. Obtaining LD-query information<a class="headerlink" href="#obtaining-ld-query-information" title="Permalink to this headline">¶</a></h3>
+<p>LD association data for correlation pruning was obtained from the Broad Institute SNAP Pairwise LD Proxy Server, a publicly available web tool (see web links below). MeRP makes direct requests to the SNAP server to obtain LD association data. The SNP data set used is 1000 Genomes Pilot 1 with the CEU population panel. The parameters used in our tool are as follows: R^2 threshold = No Limit, Distance limit = 500, Include each query snp as proxy for itself = False (unchecked), Suppress warning messages at output = True (checked). Remaining parameters are kept as Pairwise LD Proxy defaults. If a queried SNP is not found in 1000 Genomes Pilot 1, we obtain Pairwise LD with HapMap release 22 data set with the same parameters. If SNP LD data that is not found in 1000 Genomes data is found in HapMap release 22, we add the LD data to our the pruning step. SNPs that are not in either LD data set are flagged with &#8216;Not-in-LD&#8217; in the final IVF</p>
 </div>
 </div>
 <div class="section" id="mr-score-calculation">
-<h2>3.4. MR Score Calculation<a class="headerlink" href="#mr-score-calculation" title="Permalink to this headline">¶</a></h2>
-<p>The original application of MR begins with individuals who are genotyped at a range of SNPs associated with a trait of interest and utilizes a multi-SNP risk score as an instrument to estimate causal effect of trait with an endpoint hazard (Sheehan 2008). In the large GWAS data sets of SNP-trait and SNP-disease associations, we have summaries of trait and endpoint effects rather than individual genotypes. The analysis used in the calculation of the effect estimate in our pipeline is a variation of original, individual genotype MR analysis for summary SNP results from meta-analysis association results. The statistical method was drawn from Toby Johnson’s “Efficient Calculation for Calculating Multi-SNP Genetic Risk Scores.”(Johnson 2012). I report the shorthand version along with the assumptions and the way various statistics the pipeline produces are calculated.</p>
+<h2>3.3. MR Score Calculation<a class="headerlink" href="#mr-score-calculation" title="Permalink to this headline">¶</a></h2>
+<p>Our pipeline utilizes a valid statistical method for estimating causal effects based on multi-SNP genetic instrument using summary data alone (Johnson 2012). From this calculation, we obtain an estimate of the causal effect equivalent to that obtained from direct genotype MR under the assumptions that (i) the effect of individual SNPs are relatively weak, (ii) the SNPs used in IV are not correlated (no LD), and (iii) that the effects of multiple SNPs on the trait can be described as an additive, linear combination of the individual SNPs. These, in addition to the standard MR assumptions satisfied, provide an approach to estimate the causal effect and association statistics.</p>
 <p>First an additive multi-SNP risk score is calculated. For m chosen SNPs, the risk score for i-th subject is:</p>
 <img alt="_images/risk.png" class="align-center" src="_images/risk.png" />
-<p>Here, xij is the dose of allele at j-th SNP in the i-th. The value wj refers to the weight of the j-th SNP, and in our case this is analogous to the effect-size of SNP-trait
+<p>Here, x-ij is the dose of allele at j-th SNP in the i-th. The value wj refers to the weight of the j-th SNP, and in our case this is analogous to the effect-size of SNP-trait
 association. Our goal is the determine the association between this risk score and a disease phenotype using a linear regression model where the likelihood of disease
 phenotype depends solely on trait risk score through a single coefficient, α. (Johnson 2012).</p>
 <p>We look for an estimate for α, which will be our effect estimate of the trait-disease endpoint association. Johnson defines a formula for such an estimate as well as the
 standard error on the estimate:</p>
 <img alt="_images/risk2.png" class="align-center" src="_images/risk2.png" />
-<p>Here, wj is the effect size of j-th SNP (in our case ln(OR) of the SNP in our trait file), βj is the effect size estimate of j-th SNP with disease phenotype, and sj is the
+<p>Here, w-j is the effect size of j-th SNP (in our case ln(OR) of the SNP in our trait file), β-j is the effect size estimate of j-th SNP with disease phenotype, and sj is the
 corresponding standard error on βj.</p>
 <dl class="docutils">
 <dt>The causal effect estimator, α, is equivalent to the estimator that would be obtained from direct genotype MR under the assumptions that:</dt>
@@ -108,7 +94,25 @@ With α and SE(α) , we calculate chi-square on result with:</p>
 <img alt="_images/risk3.png" class="align-center" src="_images/risk3.png" />
 <p>We do this by using the fact that our test statistic is a Wald association test and is chi-square distributed with 1 degree of freedom. From this we calculate p-value using
 the chi-squared distribution.</p>
-<p>We also calculate the OR of Effect = e^alpha, and the lower and upper 95% Confidence Interval bounds on alpha (CI) = alpha +/- 1.96xSE(alpha).</p>
+<p>We also calculate the OR of Effect = e^α, and the lower and upper 95% Confidence Interval bounds on α (CI) = α +/- 1.96 x SE(α).</p>
+</div>
+<div class="section" id="web-links-for-public-data-and-queries">
+<h2>3.4. Web links for Public Data and Queries<a class="headerlink" href="#web-links-for-public-data-and-queries" title="Permalink to this headline">¶</a></h2>
+<p>Pairwise LD query data:
+<a class="reference external" href="https://www.broadinstitute.org/mpg/snap/ldsearchpw.php">https://www.broadinstitute.org/mpg/snap/ldsearchpw.php</a></p>
+<p>Systolic and Diastolic Blood Pressure:
+See supplementary materials provided with the International Consortium for Blood Pressure Genome-Wide Association Studies.</p>
+<p>Lipids and Triglycerides:
+<a class="reference external" href="http://www.sph.umich.edu/csg/abecasis/public/lipids2013/">http://www.sph.umich.edu/csg/abecasis/public/lipids2013/</a></p>
+<p>BMI, Height, WHR (adjusted for BMI):
+<a class="reference external" href="http://www.broadinstitute.org/collaboration/giant/index.php/GIANT_consortium">http://www.broadinstitute.org/collaboration/giant/index.php/GIANT_consortium</a></p>
+<p>Glycemic Traits:
+<a class="reference external" href="http://www.magicinvestigators.org/downloads/">http://www.magicinvestigators.org/downloads/</a></p>
+<p>Type 2 diabetes:
+<a class="reference external" href="http://diagram-consortium.org/">http://diagram-consortium.org/</a></p>
+<p>Coronary Heart Disease:
+<a class="reference external" href="http://www.cardiogramplusc4d.org/">http://www.cardiogramplusc4d.org/</a></p>
+<p>For citations refer to original paper and supplementary note (in submission).</p>
 </div>
 </div>
 
@@ -121,14 +125,14 @@ the chi-squared distribution.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">3. Detailed Workflow</a><ul>
-<li><a class="reference internal" href="#creating-files-from-nhgri-gwas-catalog">3.1. Creating Files From NHGRI GWAS Catalog</a></li>
-<li><a class="reference internal" href="#updating-files-with-necessary-information">3.2. Updating Files With Necessary Information</a></li>
-<li><a class="reference internal" href="#linkage-disequilibrium-ld-and-confounding-association-filtering">3.3. Linkage Disequilibrium (LD) and Confounding Association Filtering</a><ul>
-<li><a class="reference internal" href="#filtering-by-ld-and-gwas-associations">3.3.1. Filtering by LD and GWAS associations</a></li>
-<li><a class="reference internal" href="#filtering-by-association-with-common-metabolic-traits">3.3.2. Filtering by Association with Common Metabolic Traits</a></li>
+<li><a class="reference internal" href="#obtaining-genetic-instruments-from-public-data">3.1. Obtaining Genetic Instruments from Public Data</a></li>
+<li><a class="reference internal" href="#linkage-disequilibrium-ld-and-confounding-association-filtering">3.2. Linkage Disequilibrium (LD) and Confounding Association Filtering</a><ul>
+<li><a class="reference internal" href="#development-of-metabolic-p-val-file">3.2.1. Development of Metabolic P-val file</a></li>
+<li><a class="reference internal" href="#obtaining-ld-query-information">3.2.2. Obtaining LD-query information</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#mr-score-calculation">3.4. MR Score Calculation</a></li>
+<li><a class="reference internal" href="#mr-score-calculation">3.3. MR Score Calculation</a></li>
+<li><a class="reference internal" href="#web-links-for-public-data-and-queries">3.4. Web links for Public Data and Queries</a></li>
 </ul>
 </li>
 </ul>

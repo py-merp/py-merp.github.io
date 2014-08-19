@@ -51,29 +51,29 @@
             
   <div class="section" id="introduction">
 <h1>1. Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
-<p>py-MeRP is a free, open-source tool designed to streamline and automate large-scale Mendelian Randomization analysis.</p>
+<p>MeRP is a free, open-source tool designed to streamline and automate large-scale Mendelian Randomization analysis.</p>
 <div class="section" id="what-is-mendelian-randomization">
 <h2>1.1. What is Mendelian Randomization?<a class="headerlink" href="#what-is-mendelian-randomization" title="Permalink to this headline">¶</a></h2>
 <p>Mendelian Randomization (MR) is a method to examine causal associations of heritable, but modifiable, traits on disease using observational data sets. Traditional epidemiological studies are effective at discovering patterns and associations between potential risk factors and disease, but inherently cannot determine causality because of potential complications such as reverse causality or the effect confounding factors. Unlike traditional epidemiology, MR controls for interference from these factors by carefully selecting genetic variants that exclusively associate with trait of interest as an instrumental variable for analysis with disease data. With the ongoing rise in Genome Wide Association Studies (GWAS) linking genetic variants with traits and diseases, the utility of MR has been greater than ever.</p>
 </div>
 <div class="section" id="overview">
 <h2>1.2. Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
-<p>There are three distinct elements of the MeRP pipeline.</p>
+<p>There are three components of the MeRP pipeline.</p>
 <blockquote>
 <div><ol class="arabic">
 <li><dl class="first docutils">
-<dt>NHGRI GWAS catalog parser</dt>
+<dt>Pulling Genetic Instruments from Public Data</dt>
 <dd><ul class="first last simple">
 <li>Pulls down and cleans most recent NHGRI Catalog of GWAS studies</li>
-<li>Creates instrumental variable trait files (IVs) from catalog</li>
+<li>Creates valid instrumental variable trait files (IVs) from catalog</li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="first docutils">
-<dt>Filter to satisfy MR conditions</dt>
+<dt>Filtering to satisfy MR conditions</dt>
 <dd><ul class="first last simple">
-<li>Removes significantly confounded SNPs from IV file</li>
+<li>Removes SNPs associated with potential confounding factors from IV file</li>
 <li>Eliminates Linkage Disequilibrium (LD) within IV file.</li>
 </ul>
 </dd>
@@ -122,7 +122,8 @@
 <div class="section" id="citation">
 <h2>1.6. Citation<a class="headerlink" href="#citation" title="Permalink to this headline">¶</a></h2>
 <p>Please cite us when using py-MeRP in your work.</p>
-<p>Yin, P., Voight, B. (2014) MeRP: A Robust Pipeline for Mendelian Randomization Analysis.</p>
+<p>Yin, P., Voight, B. (2014) MeRP: A high-throughput pipeline for Mendelian Randomization Analysis.
+(In submission)</p>
 </div>
 <div class="section" id="general-information-and-contact-info">
 <h2>1.7. General information and Contact Info<a class="headerlink" href="#general-information-and-contact-info" title="Permalink to this headline">¶</a></h2>
@@ -135,7 +136,7 @@
 </dd>
 </dl>
 <p>Contact:</p>
-<p>The latest Documentation was generated on: July 14, 2014</p>
+<p>The latest Documentation was generated on: August 19, 2014</p>
 </div>
 </div>
 
