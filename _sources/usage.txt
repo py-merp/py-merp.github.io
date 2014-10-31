@@ -180,3 +180,15 @@ The summary and individual result files can be found at /analysis
 
 
 We see that there is an estimated effect of 0.367 increase in log odds ratio (a_hat) with an increase in 1 standard deviation of LDL cholesterol levels. The p value is on the order of 10 ^ -4 , indicating a significant effect. This result supports the hypothesis that LDL cholesterol levels causally increase risk for Coronary Heart Disease, matching epidemiological observations.
+
+*********************************************************
+Optional: Export to gtx R Package for Additional Analysis
+*********************************************************
+    Users may convert the filtered files to appropriate format for gtx R package by Toby Johnson from which our statistical analysis is derived. Users may additionally run heterogeneity tests, repeat analysis, and plot results of regression using gtx_helper.R found in /src/, modifying name to match path to converted file (automatically generated in new /for_gtx directory)
+
+    >>> m.convert_to_gtx('path/to/472_updatefiltered’,'path/to/endpoint_file',dis_name = 'T2D')
+
+    
+
+
+

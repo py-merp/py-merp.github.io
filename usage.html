@@ -291,6 +291,15 @@ Users can input their own trait files in the filter as long as it is properly fo
 <img alt="_images/indiv_analysis.png" class="align-center" src="_images/indiv_analysis.png" />
 <p>We see that there is an estimated effect of 0.367 increase in log odds ratio (a_hat) with an increase in 1 standard deviation of LDL cholesterol levels. The p value is on the order of 10 ^ -4 , indicating a significant effect. This result supports the hypothesis that LDL cholesterol levels causally increase risk for Coronary Heart Disease, matching epidemiological observations.</p>
 </div>
+<div class="section" id="optional-export-to-gtx-r-package-for-additional-analysis">
+<h2>2.5. Optional: Export to gtx R Package for Additional Analysis<a class="headerlink" href="#optional-export-to-gtx-r-package-for-additional-analysis" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>Users may convert the filtered files to appropriate format for gtx R package by Toby Johnson from which our statistical analysis is derived. Users may additionally run heterogeneity tests, repeat analysis, and plot results of regression using gtx_helper.R found in /src/, modifying name to match path to converted file (automatically generated in new /for_gtx directory)</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">convert_to_gtx</span><span class="p">(</span><span class="s">&#39;path/to/472_updatefiltered’,&#39;</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">endpoint_file</span><span class="s">&#39;,dis_name = &#39;</span><span class="n">T2D</span><span class="s">&#39;)</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
 </div>
 
 
@@ -314,6 +323,7 @@ Users can input their own trait files in the filter as long as it is properly fo
 </ul>
 </li>
 <li><a class="reference internal" href="#calculate-trait-disease-casual-effect-estimate">2.4. Calculate Trait-Disease Casual Effect Estimate</a></li>
+<li><a class="reference internal" href="#optional-export-to-gtx-r-package-for-additional-analysis">2.5. Optional: Export to gtx R Package for Additional Analysis</a></li>
 </ul>
 </li>
 </ul>

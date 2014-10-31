@@ -2,7 +2,7 @@
 Introduction
 ############
 
-py-MeRP is a free, open-source tool designed to streamline and automate large-scale Mendelian Randomization analysis.
+MeRP is a free, open-source tool designed to streamline and automate large-scale Mendelian Randomization analysis.
 
 
 
@@ -16,13 +16,13 @@ Mendelian Randomization (MR) is a method to examine causal associations of herit
 Overview
 ********
 
-There are three distinct elements of the MeRP pipeline.
+There are three components of the MeRP pipeline.
 
-    1. NHGRI GWAS catalog parser
+    1. Pulling Genetic Instruments from Public Data
         - Pulls down and cleans most recent NHGRI Catalog of GWAS studies
-        - Creates instrumental variable trait files (IVs) from catalog
-    2. Filter to satisfy MR conditions
-        - Removes significantly confounded SNPs from IV file
+        - Creates valid instrumental variable trait files (IVs) from catalog
+    2. Filtering to satisfy MR conditions
+        - Removes SNPs associated with potential confounding factors from IV file
         - Eliminates Linkage Disequilibrium (LD) within IV file.
     3. MR Calculator 
         - Estimates causal effect of selected trait and preselected GWAS disease data
@@ -64,7 +64,8 @@ Citation
 
 Please cite us when using py-MeRP in your work.
 
-Yin, P., Voight, B. (2014) MeRP: A Robust Pipeline for Mendelian Randomization Analysis.
+Yin, P., Voight, B. (2014) MeRP: A high-throughput pipeline for Mendelian Randomization Analysis.
+(In submission)
 
 
 ************************************
